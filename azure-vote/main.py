@@ -8,16 +8,29 @@ import logging
 from datetime import datetime
 
 # App Insights
+# Reference: https://docs.microsoft.com/en-us/azure/azure-monitor/app/opencensus-python
 # TODO: Import required libraries for App Insights
+from opencensus.ext.azure.trace_exporter import AzureExporter
+from opencensus.trace.samplers import ProbabilitySampler
+from opencensus.trace.tracer import Tracer
 
 # Logging
-logger = # TODO: Setup logger
+# TODO: Setup logger
+logger = logging.getLogger(__name__)
 
 # Metrics
-exporter = # TODO: Setup exporter
+# TODO: Setup exporter
+# NEED TO CONFIGURE APPLICATIONINSIGHTS_CONNECTION_STRING
+exporter = AzureExporter()
+logger.addHandler(exporter)
+
 
 # Tracing
 tracer = # TODO: Setup tracer
+tracer = Tracer(
+    exporter=exporter,
+    sampler=ProbabilitySampler(1.0),
+)
 
 app = Flask(__name__)
 

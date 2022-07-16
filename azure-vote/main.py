@@ -10,23 +10,29 @@ from datetime import datetime
 # App Insights
 # Reference: https://docs.microsoft.com/en-us/azure/azure-monitor/app/opencensus-python
 # TODO: Import required libraries for App Insights
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 from opencensus.ext.azure.trace_exporter import AzureExporter
 from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.trace.tracer import Tracer
+from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
+# MOVE TO SECRETS FOR PRODUCTION!
+instrumentation_key = '331a4b46-34db-4974-a7a2-5492b7d6d2b3'
 # Logging
 # TODO: Setup logger
 logger = logging.getLogger(__name__)
+logger.addHandler(AzureLogHandler(
+    connection_string=f'InstrumentationKey={instrumentation_key}')
+)
 
 # Metrics
 # TODO: Setup exporter
 # NEED TO CONFIGURE APPLICATIONINSIGHTS_CONNECTION_STRING
-exporter = AzureExporter()
+exporter = AzureExporter(connection_string=f'InstrumentationKey={instrumentation_key}')
 logger.addHandler(exporter)
 
 
 # Tracing
-tracer = # TODO: Setup tracer
 tracer = Tracer(
     exporter=exporter,
     sampler=ProbabilitySampler(1.0),
@@ -35,7 +41,12 @@ tracer = Tracer(
 app = Flask(__name__)
 
 # Requests
-middleware = # TODO: Setup flask middleware
+# TODO: Setup flask middleware
+middleware = FlaskMiddleware(
+    app,
+    exporter=AzureExporter(connection_string=f'InstrumentationKey={instrumentation_key}'),
+    sampler=ProbabilitySampler(rate=1.0)
+)
 
 # Load configurations from environment or config file
 app.config.from_pyfile('config_file.cfg')
@@ -56,7 +67,9 @@ else:
     title = app.config['TITLE']
 
 # Redis Connection
-r = redis.Redis()
+r = redis.Redis()  # for VM Scale set deployment
+
+# for AKS deployment
 
 # Change title to host name to demo NLB
 if app.config['SHOWHOST'] == "true":
@@ -74,9 +87,14 @@ def index():
         # Get current values
         vote1 = r.get(button1).decode('utf-8')
         # TODO: use tracer object to trace cat vote
+        with tracer.span(name='cat_vote') as span:
+            print("Cats Vote")
+
+            
         vote2 = r.get(button2).decode('utf-8')
         # TODO: use tracer object to trace dog vote
-
+        with tracer.span(name='dog_vote') as span:
+            print("Dogs Vote")
         # Return index with values
         return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 

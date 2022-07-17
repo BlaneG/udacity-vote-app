@@ -17,7 +17,7 @@ from opencensus.trace.tracer import Tracer
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
 # MOVE TO SECRETS FOR PRODUCTION!
-instrumentation_key = '331a4b46-34db-4974-a7a2-5492b7d6d2b3'
+instrumentation_key = 'ef304555-fa09-4ec3-8fe8-e7105ae9c165'
 # Logging
 # TODO: Setup logger
 logger = logging.getLogger(__name__)

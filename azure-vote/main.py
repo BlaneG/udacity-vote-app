@@ -17,10 +17,11 @@ from opencensus.trace.tracer import Tracer
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
 # MOVE TO SECRETS FOR PRODUCTION!
-instrumentation_key = 'ef304555-fa09-4ec3-8fe8-e7105ae9c165'
+instrumentation_key = '635913da-7c94-4e24-95b8-4c827255792a'
 # Logging
 # TODO: Setup logger
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 logger.addHandler(AzureLogHandler(
     connection_string=f'InstrumentationKey={instrumentation_key}')
 )
